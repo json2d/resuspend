@@ -1,0 +1,13 @@
+pre[role='heading'] {
+  font-size: 2em;
+}
+
+pre[role='note'] {
+  font-size: 1em;
+  padding-top: 0em;
+  padding-bottom: 1em;
+}
+
+button {
+  text-transform: uppercase;
+}
