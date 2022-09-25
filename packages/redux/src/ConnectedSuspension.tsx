@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useContext } from 'react';
+import React, { FC, useCallback, useContext, useEffect } from 'react';
 
 import { AnyAction } from 'redux';
 import { createSelectorHook, ReactReduxContext, Selector } from 'react-redux';
@@ -34,19 +34,18 @@ export const ConnectedSuspension: FC<ConnectedSuspensionProps> = (props) => {
   // this makes the component perform an update render when `active` changes
   const active = useContextualSelector(props.activeSelector);
 
-  const onActive = useCallback(() => {
-    if (props.onActiveSelector) {
-      console.debug('dispatching reaction to suspension becoming active');
-      const reaction = props.onActiveSelector(store.getState());
-      store.dispatch(reaction);
-    }
-  }, [props.onActiveSelector, store]);
-
-  return (
-    <Suspension active={active} onActive={onActive}>
-      {props.children}
-    </Suspension>
+  useEffect(
+    function onActive() {
+      if (active && props.onActiveSelector) {
+        console.debug('dispatching reaction to suspension becoming active');
+        const reaction = props.onActiveSelector(store.getState());
+        store.dispatch(reaction);
+      }
+    },
+    [active, props.onActiveSelector, store]
   );
+
+  return <Suspension active={active}>{props.children}</Suspension>;
 };
 
 ConnectedSuspension.defaultProps = {

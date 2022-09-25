@@ -1,40 +1,28 @@
-import { useEffect, useRef } from 'react';
-import { useImmediateEffect } from './useImmediateEffect';
-import {
-  DestructorRef,
-  Condition,
-  Maybe,
-  DestructorRegistrator,
-} from './types';
+import { useRef } from 'react';
+import { Maybe } from './types';
 
 // prefix used to decorate logs useful for debugging the lifecycle of `SuspensionController` objects
 const LOW_TAG = '🌊';
 
-// prefix used to decorate logs useful for debugging the lifecycle of `useSuspension` hooks, which use `SuspensionController` objects internally
-const HIGH_TAG = '🏄🏽‍♂️';
+// prefix used to decorate logs useful for debugging the lifecycle of `useSuspension` hooks (which use `SuspensionController` objects internally)
+const HIGH_TAG = '🏄🏽';
 
 interface SuspensionController {
   _suspension: {
     _running: Maybe<Promise<void>>;
     _resolve: Maybe<() => void>;
   };
-  suspend: () => void;
-  unsuspend: () => void;
+  _suspend: () => void;
+  _unsuspend: () => void;
 }
 
 /**
- * this hook returns an object that can functionally control a suspension
- * it's not so end-user-friendly, but will be useful as a building block for better hooks w/ more domain specific suspension handling
+ * this hook controls the activation status of a suspension
+ * for testing purposes, it returns an object that is used internally to monitor and control a suspension
  * @param active the activation status
- * @param onActive the activation effect
  * @returns
  */
-export function useSuspension(
-  active?: Condition,
-  onActive?:
-    | React.EffectCallback
-    | [Maybe<DestructorRef>, Maybe<React.EffectCallback>]
-): SuspensionController {
+export function useSuspension(active: boolean): SuspensionController {
   const controller = useRef<SuspensionController>({
     // internals
     _suspension: {
@@ -45,7 +33,7 @@ export function useSuspension(
     },
     // callback that transitions activation status to active
     // 👀 idempotent
-    suspend: () => {
+    _suspend: () => {
       console.debug(LOW_TAG, 'suspending...');
 
       if (controller.current._suspension._running) {
@@ -69,75 +57,34 @@ export function useSuspension(
     },
     // callback that transitions activation status to inactive
     // 👀 idempotent
-    unsuspend: () => {
+    _unsuspend: () => {
       console.debug(LOW_TAG, 'unsuspending...');
       // @ts-ignore: errors w/ `Maybe` types x optional chaining
       controller.current._suspension._resolve?.(); // this helps the callback be more idempotent
       controller.current._suspension._running = null;
+      controller.current._suspension._resolve = null;
     },
   });
 
-  // on unmount, cleanup if activation status to active
-  useEffect(
-    () => () => {
-      // @ts-ignore: errors w/ `Maybe` types x optional chaining
-      controller.current._suspension._resolve?.();
-    },
-    []
+  console.debug(
+    HIGH_TAG,
+    'monitoring activation status and managing suspension lifecycle'
   );
 
-  // resolve fuzzy activation effect w/ cleanup dependency injection (same as w/ `useImmediateEffect` hook)
-  let proxiedCleanupRef: Maybe<DestructorRef>;
-  let onActiveResolved: Maybe<React.EffectCallback>;
-  if (onActive) {
-    if (Array.isArray(onActive)) {
-      [proxiedCleanupRef, onActiveResolved] = onActive;
-    } else {
-      onActiveResolved = onActive;
-    }
-  }
-
-  // fuzzy type: boolean or function returning a boolean w/ no side-effects
-  const activeResolved =
-    (active instanceof Function && active()) ||
-    (!(active instanceof Function) && active);
-
-  function manageSuspension(registerCleanup: DestructorRegistrator) {
+  if (active) {
     console.debug(
       HIGH_TAG,
-      'monitoring activation status and managing suspension lifecycle'
+      'activation status is now active, suspension activating...'
     );
 
-    if (active) {
-      console.debug(
-        HIGH_TAG,
-        'activation status is now active, suspension activating...'
-      );
-
-      if (onActiveResolved) {
-        // defer `onActive` so it is called after `suspend` is called
-        setTimeout(() => {
-          console.debug(HIGH_TAG, 'activation effect running...');
-          // @ts-ignore: errors w/ `Maybe` types x optional chaining
-          const _cleanup = onActiveResolved?.();
-          registerCleanup(_cleanup); // manage side-effects
-        });
-      }
-      controller.current.suspend(); // throws
-    } else {
-      console.debug(
-        HIGH_TAG,
-        'activation status is now inactive, suspension deactivating...'
-      );
-      controller.current.unsuspend();
-    }
+    controller.current._suspend(); // throws
+  } else {
+    console.debug(
+      HIGH_TAG,
+      'activation status is now inactive, suspension deactivating...'
+    );
+    controller.current._unsuspend();
   }
-
-  // TODO: explain why you should use `activeResolved` but not `onActiveResolved` as dep here
-  useImmediateEffect(
-    [proxiedCleanupRef, manageSuspension],
-    [activeResolved, onActive]
-  );
 
   // report controller values
   return controller.current;

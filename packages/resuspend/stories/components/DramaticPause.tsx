@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Suspension } from '../../src';
 
 /**
@@ -18,15 +18,20 @@ export default function DramaticPause(props: {
 }) {
   const [show, setShow] = useState(!props.duration);
 
-  const waitAndThenShow = useCallback(() => {
-    const timeoutId = setTimeout(() => setShow(true), props.duration);
-    return () => clearTimeout(timeoutId);
-  }, [setShow, props.duration]);
+  useEffect(
+    function waitAndThenShow() {
+      if (!show) {
+        const timeoutId = setTimeout(() => setShow(true), props.duration);
+        return () => clearTimeout(timeoutId);
+      }
+    },
+    [show, props.duration]
+  );
 
   const hide = useCallback(() => setShow(false), [setShow]);
 
   return (
-    <Suspension active={!show} onActive={waitAndThenShow}>
+    <Suspension active={!show}>
       {props.children}
       <button onClick={hide}>
         <pre>refresh</pre>
