@@ -7,7 +7,7 @@
 
 <div align="center">
 
-this unassuming library provides a `<Suspension/>` component which is designed to work together w/ the [`<Suspense/>` component from the React API](https://reactjs.org/docs/concurrent-mode-suspense.html) in order to facilitate whatever **suspension logic** you may wish to implement in your [React](https://reactjs.org/) app, with an initial focus on _content fulfillment_ and _user experience pacing_ as the primary use cases
+this zero-dependency library provides a `<Suspension/>` component that works w/ the [`<Suspense/>` component from the React API](https://reactjs.org/docs/concurrent-mode-suspense.html) to make implementing _loading states_ super declarative
 
 [![npm](https://img.shields.io/npm/v/resuspend.svg)](https://www.npmjs.com/package/resuspend)
 ![node](https://img.shields.io/node/v/resuspend.svg)
@@ -99,7 +99,6 @@ export function UserStatus(props) {
           .then((response) => response.json())
           .then((data) => setStatus(data.status));
       }
-      x;
     },
     [status, props.userId]
   );
@@ -138,16 +137,6 @@ likewise to set the _activation status_ to _inactive_, you would simply assign t
 ```jsx
 <Suspense fallback={<>[pausing dramatically...]</>}>
   <Suspension active={false}>you will be seeing this text 👀</Suspension>
-</Suspense>
-```
-
-you may also assign a callback to the `active` prop and it will be evaluated to _active_ (for truthy values) or _inactive_ (for falsey values.)
-
-```jsx
-<Suspense fallback={<>[pausing randomly and dramatically...]</>}>
-  <Suspension active={() => Math.random() >= 0.5}>
-    you will maybe be seeing this text 👀
-  </Suspension>
 </Suspense>
 ```
 
