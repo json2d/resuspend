@@ -8,7 +8,7 @@
 
 <div align="center">
 
-this molecular-{sized | weight} library provides a `<Suspension/>` component that works closely {along} w/ the [`<Suspense/>` component from the React API](https://reactjs.org/docs/concurrent-mode-suspense.html) to make implementing organic loading-states super declarative and basic 🚀
+this molecular-{sized | weight} library provides a `<Suspension/>` component that works closely {along} w/ the [`<Suspense/>` component from the React API](https://react.dev/reference/react/Suspense) to make implementing organically evolving loading-states super declarative and basic 🚀
 
 [![npm](https://img.shields.io/npm/v/resuspend.svg)](https://www.npmjs.com/package/resuspend)
 ![node](https://img.shields.io/node/v/resuspend.svg)
@@ -116,12 +116,48 @@ function PatientSnakeGame(props) {
 
 
 ## {data fetching example | basic data-fetching}
+Often, we'll want to wait until data is fetched before showing a component. 
 
-more commonly, you'll probably be trying to have a loading-state to fetching some data before using it to rendering some component.
+To handle this, we can use the availability of the fetched data to decide if the component should be suspended or not:
 
-[bbb use the availablity of data being fetched to declare the suspension state]
+```jsx
+import { Suspense, useState, useEffect } from 'react';
+import { Suspension } from 'resuspend';
 
-[bbb probably want to do it w/ some caching strategy like SWR]
+export function PlantedDashboard(props) {
+  const [plants, setPlants] = useState();
+
+  const [id, setId] = useState(plants?.[0].id);
+
+  useEffect(
+    async function fetchAndSetPlants() {
+      if (!plants) {
+        const response = await fetch(`/api/plants/`)
+        const data = response.json();
+
+        setPlants(data.plants);
+        setId(data.plants?.[0].id);
+      }
+    },
+    [plants]
+  );
+
+function PatientSnakeGame(props) {
+  const { ref, inView } = useInView({ threshold: 1 }); // all in
+  return (
+    <Suspense fallback={<PlantsLoading />}>
+      <Suspension active={!plants}>
+        <Controller plants={plants} onIdChanged={setId}/>
+        <PlantedProfile id={id}>
+      </Suspension>
+    </Suspense>
+  );
+}
+```
+
+### caching
+
+A {smart | great | efficient} way to do data-fetching, in general, is by using a strategy like [SWR for caching](https://swr.vercel.app/):
 
 ```jsx
 import { Suspension } from 'resuspend';
@@ -145,7 +181,9 @@ function PlantedDashboard(props) {
 ```
 [try it out now in a live editor via CodeSandbox ✨](https://codesandbox.io/s/resuspend-data-fetching-example-quote-of-the-day-zlbpjm?file=/src/QuoteOfTheDay.jsx)
 
-[bbb compositon and lazy]
+### composing
+
+Now, let's see an example where composition is used to implement eager loading:
 
 ```jsx
 function PlantedProfile(props) {
@@ -168,8 +206,9 @@ function PlantedProfile(props) {
 ```
 [try it out now in a live editor via CodeSandbox ✨](https://codesandbox.io/s/resuspend-data-fetching-example-quote-of-the-day-zlbpjm?file=/src/QuoteOfTheDay.jsx)
 
-[bbb if you decide that too much abstraction is to your liking...bbb lets get all the loading-states together and look at is one cohesive loading strategy]
-[bbb nesting and power to do it all in a single component]
+### nesting
+
+Imagine now we think the abstraction is a bit too much. let's gather all the loading-states and see them as one clear loading strategy. we have the freedom to nest, compose, and handle it all within a single component:
 
 ```jsx
 function PlantedDashboard(props) {
@@ -204,7 +243,35 @@ function PlantedDashboard(props) {
 
 
 ## SSR compatible
+While usage in SSR (server-side rendering) has yet to-be fully explored, the `<Suspension>` component is perfectly useable w/ SSR frameworks that let us force CSR somehow [eg. w/ Next.js using its dynamic imports ✨](https://nextjs.org/docs/pages/building-your-application/optimizing/lazy-loading#with-no-ssr)
 
+```jsx
+// pages/index.js
+import dynamic from "next/dynamic";
+
+import { DramaticHelloerLoading } from "../components/DramaticHelloer";
+
+// dynamic import
+const DramaticHelloer = dynamic(() => import("../components/DramaticHelloer"), {
+  ssr: false, // forces CSR
+  loading: () => <DramaticHelloerLoading />, // does minimal SSR here
+});
+
+export default function IndexPage() {
+  return (
+    <main>
+      <DramaticHelloer />
+    </main>
+  );
+}
+
+```
+[try it out now in a live editor via CodeSandbox ✨](https://codesandbox.io/s/resuspend-data-fetching-example-quote-of-the-day-zlbpjm?file=/src/QuoteOfTheDay.jsx)
+
+
+## SSR compatible
+
+[try it out now in a live editor via CodeSandbox ✨](https://codesandbox.io/p/sandbox/next12-pages-dynamic-imports-x-resuspend-mn696q?file=%2Fpages%2Findex.js%3A5%2C1-9%2C1)
 
 ## lifecycle
 
@@ -213,7 +280,6 @@ the `<Suspension/>` component may be _activated_, _deactivated_, then _reactivat
 
 ## live demos
 
-
 ## {more integrations | integration guides}
 - [`redux`]()
 - [`next`]()
@@ -221,3 +287,6 @@ the `<Suspension/>` component may be _activated_, _deactivated_, then _reactivat
 - [`<TransitionGroup>`]()
 
 [recommendations?](link-to-issues-or-discustions)
+
+## feedback
+[bbb link to RFC asking for feedback]
