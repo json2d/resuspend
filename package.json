@@ -37,7 +37,7 @@
   "author": "Jason Yung",
   "repository": {
     "type": "git",
-    "url": "https://github.com/json2d/resuspend/blob/main/packages/resuspend"
+    "url": "https://github.com/json2d/resuspend"
   },
   "keywords": [
     "suspense",
