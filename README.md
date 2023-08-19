@@ -3,11 +3,12 @@
   <a href="https://resuspend.js.org" rel="noopener" target="_blank"><img height="100" src="https://gist.githubusercontent.com/json2d/ffbf9ae39c31a3e1ea1c84277e157f1d/raw/7fa47e68047eb7eaf1bae30eb34b8b5948590c2d/resuspend-final.svg" alt='Resuspend Logo'></a>
 </p>
 
-<h1 align="center">resuspend</h1>
+<h1 align="center">Resuspend</h1>
+<h3 align="center">highly declarative loading-states unlocked for React components</h3>
 
 <div align="center">
 
-this zero-dependency library provides a `<Suspension/>` component that works w/ the [`<Suspense/>` component from the React API](https://reactjs.org/docs/concurrent-mode-suspense.html) to make implementing _loading states_ super declarative
+this molecular-{sized | weight} library provides a `<Suspension/>` component that works closely {along} w/ the [`<Suspense/>` component from the React API](https://reactjs.org/docs/concurrent-mode-suspense.html) to make implementing organic loading-states super declarative and basic 🚀
 
 [![npm](https://img.shields.io/npm/v/resuspend.svg)](https://www.npmjs.com/package/resuspend)
 ![node](https://img.shields.io/node/v/resuspend.svg)
@@ -20,46 +21,45 @@ this zero-dependency library provides a `<Suspension/>` component that works w/ 
 
 ## getting started
 
-to install the latest stable version:
+install the latest version:
 
 ```sh
 npm i resuspend -S
 ```
 
-to import it into a module:
+import it:
 
 ```js
 import { Suspension } from 'resuspend';
 ```
 
-## basic example
+## basic usage
 
-here's a simple example of a `<DramaticPause/>` component that waits for some amount of time specified by its `duration` prop before finally rendering its `children` prop:
+here's a simple example of a `<DramaticHelloer>` component that uses a loading-state to repeat a greeting every 6 seconds:
 
 ```jsx
 import { Suspense, useState, useEffect } from 'react';
 import { Suspension } from 'resuspend';
 
-export function DramaticPause(props) {
-  // state mapped to the activation status
-  const [show, setShow] = useState(!props.duration);
+function DramaticHelloer(props) {
+  const [revealed, setRevealed] = useState(false);
 
-  // activation effect - called when the activation status is set to active
+  // reveal or unreveal greeting repeatedly (w/ some pacing)
   useEffect(
-    function waitAndThenShow() {
-      if (!show) {
-        const timeoutId = setTimeout(() => setShow(true), props.duration);
-
-        // cleanup callback
-        return () => clearTimeout(timeoutId);
-      }
+    function revevalOrUnreveal() { 
+      if(!revealed) setTimeout(() => setRevealed(true), 3000);
+      else setTimeout(() => setRevealed(false), 3000);
     },
-    [show, props.duration]
+    [revealed]
   );
 
   return (
-    <Suspense fallback={<>[pausing dramatically...]</>}>
-      <Suspension active={!show}>{props.children}</Suspension>
+    <Suspense fallback={
+      <>[pausing dramatically...]</>
+    }>
+      <Suspension active={!revealed}>
+        hello world! 👋🏽🌎
+      </Suspension>
     </Suspense>
   );
 }
@@ -67,124 +67,157 @@ export function DramaticPause(props) {
 
 [try it out in a live editor via CodeSandbox ✨](https://codesandbox.io/s/resuspend-basic-example-lurxwz?file=/src/DramaticPause.jsx)
 
-### props reference
+### key details
 
-as you can see here above w/ the `<Suspension/>` component working in conjuntion w/ the `useEffect` hook:
+a few of things {to note} about {what's happening in} the component above:
 
-- the `active` prop is used to declare whether its _activation status_ is _active_ or _inactive_
+- the `revealed` state is used by the `<Suspension>` component `active` prop to declare whether the suspension state should be _active_ or _inactive_
 
-- the `waitAndTheShow` effect is used to declare an _activation effect_ to specify what happens when its _activation status_ is switched to _active_ or _inactive_
+- the `revealed` state is switched by `revevalOrUnreveal` effect, controlling the suspension state dynamically
 
-> essentially, the **suspension logic** is composed of and encapsulated by these values.
+> this kind of "dynamic switch" is all that's needed to drive a loading-state 🏗 - they can be a state controlled by an effect, or even a prop controlled by a parent component. the state could also come from a hook, or even some combination of all of the above!
 
-## data fetching example
+## {integration example | basic integration}
+one of more obscure things the `<Suspense>` component was designed for is to readily pause our components, like when they are out of view, so they don't keep running in the background if we don't want them to.
 
-more commonly, your **suspension logic** will probably involve fetching some data from a remote API service and rendering it in some kind of way.
-
-here's a simple example of a `<UserStatus>` component that does just that:
+{for this example | to best demonstrate this} we can use `react-intersection-observer` to do part of the lift and simply {use the `inView` state that their hook conveniently provides to declare the suspension state | {utilize | leverage} their friendly `useInView` hook to make it basic}:
 
 ```jsx
-import { Suspense, useState, useEffect } from 'react';
-import { Suspension } from 'resuspend';
+import { Suspension } from "resuspend";
+import { SnakeGame } from "resnake";
+import { useInView } from "react-intersection-observer";
 
-export function UserStatus(props) {
-  // state mapped to the activation status
-  const [status, setStatus] = useState();
-
-  // activation effect - called when the activation status is set to active
-  useEffect(
-    function fetchStatus() {
-      if (!status) {
-        fetch(`/api/status/${props.userId}`)
-          .then((response) => response.json())
-          .then((data) => setStatus(data.status));
-      }
-    },
-    [status, props.userId]
+function PatientSnakeGame(props) {
+  const { ref, inView } = useInView({ threshold: 1 }); // all in
+  return (
+    <div ref={ref}>
+      <Suspense fallback={
+        <>[waiting for 🖼 to be fully in view]</>
+      }>
+        <Suspension active={!inView}>
+          <SnakeGame />
+        </Suspension>
+      </Suspense>
+    </div>
   );
+}
+```
+
+[try it out in a live editor via CodeSandbox ✨](https://codesandbox.io/s/resuspend-basic-example-lurxwz?file=/src/DramaticPause.jsx)
+
+### key details
+[bbb a few things] 
+
+- the `inView` state is used by the `<Suspension>` component `active` prop to declare the suspension state
+
+- the `<SnakeGame>` component is paused when it is out of view, and continues when it is back in view
+
+> the `<Suspense>` component {in fallback mode} keeps its children components mounted, but puts them in a {frozen | suspended} state ❄️ so we don't lose our progress in the game or miss any of the action!
+
+
+## {data fetching example | basic data-fetching}
+
+more commonly, you'll probably be trying to have a loading-state to fetching some data before using it to rendering some component.
+
+[bbb use the availablity of data being fetched to declare the suspension state]
+
+[bbb probably want to do it w/ some caching strategy like SWR]
+
+```jsx
+import { Suspension } from 'resuspend';
+import useSWR from "swr";
+
+function PlantedDashboard(props) {
+  const { data: plants } = useSWR("/api/plants", fetcher);  
+
+  const [id, setId] = useState(plants?.[0].id);
+  useEffect(() => setId(plants?.[0].id), [plants])
 
   return (
-    <Suspense fallback={<>[fetching status...]</>}>
-      <Suspension active={!status}>{status}</Suspension>
+    <Suspense fallback={<PlantsLoading />}>
+      <Suspension active={!plants}> 
+        <Controller plants={plants} onIdChanged={setId}/>
+        <PlantedProfile id={id}>
+      </Suspension>
     </Suspense>
   );
 }
 ```
-
 [try it out now in a live editor via CodeSandbox ✨](https://codesandbox.io/s/resuspend-data-fetching-example-quote-of-the-day-zlbpjm?file=/src/QuoteOfTheDay.jsx)
 
-<!-- check out the more complete example of this use-case that "goes all the way" and includes a cleanup callback that [aborts the fetch](#advanced-data-fetching-example)
- -->
-
-## activation
-
-to set the _activation status_ to _active_, you would simply assign the prop `active={true}`:
+[bbb compositon and lazy]
 
 ```jsx
-<Suspense fallback={<>[pausing dramatically...]</>}>
-  <Suspension active={true}>
-    you will not be seeing this text (except here in code) 👀
-  </Suspension>
-</Suspense>
-```
+function PlantedProfile(props) {
+  const { id } = props;
 
-that's all you need to activate a `<Suspension/>` component, consequently triggering its ancestral `<Suspense/>` component and causing it to suspend updating and rendering of its children and instead rendering its `fallback` prop.
-
-## inactivation
-
-likewise to set the _activation status_ to _inactive_, you would simply assign the prop `active={false}`:
-
-```jsx
-<Suspense fallback={<>[pausing dramatically...]</>}>
-  <Suspension active={false}>you will be seeing this text 👀</Suspension>
-</Suspense>
-```
-
-## reactivation
-
-in general, using a basic callback is a fine way to switch an _activation status_ from _inactive_ to _active_. this callback can simply be attached to a `useEffect` hook or perhaps to some UI element event, e.g. a button click:
-
-```jsx
-import { Suspense, useState, useCallback } from 'react';
-import { Suspension } from 'resuspend';
-
-export function DramaticPause(props) {
-  // state mapped to the activation status
-  const [show, setShow] = useState(!props.duration);
-
-  // activation effect callback - called when the activation status is set to active
-  useEffect(
-    function waitAndThenShow() {
-      if (!show) {
-        const timeoutId = setTimeout(() => setShow(true), props.duration);
-
-        // cleanup callback - called when the activation status is switched to inactive
-        return () => clearTimeout(timeoutId);
-      }
-    },
-    [show, props.duration]
-  );
-
-  // (re)activation callback
-  const reload = useCallback(() => setShow(false));
+  const { data: metrics } = useSWR(id && `/api/plants/${id}/metrics`, fetcher);  
+  const { data: trend } = useSWR(id &&`/api/plants/${id}/trend`, fetcher);
 
   return (
-    <>
-      <Suspense fallback={<>[pausing dramatically...]</>}>
-        <Suspension active={!show}>{props.children}</Suspension>
-      </Suspense>
-      <button disabled={!show} onClick={reload}>
-        Reload
-      </button>
-    </>
+    <Suspense fallback={<PlantedProfileSkeleton />}>  
+      <Suspension active={!metrics}>
+        <Metrics data={metrics} />
+      </Suspension>
+      <Suspension active={!trend}>
+        <Trend data={trend} />
+      </Suspension>
+    </Suspense>
   );
 }
 ```
+[try it out now in a live editor via CodeSandbox ✨](https://codesandbox.io/s/resuspend-data-fetching-example-quote-of-the-day-zlbpjm?file=/src/QuoteOfTheDay.jsx)
 
-[try it out now in a live editor via CodeSandbox ✨](https://codesandbox.io/s/resuspend-basic-example-w-reactivation-kjijso?file=/src/DramaticPause.jsx)
+[bbb if you decide that too much abstraction is to your liking...bbb lets get all the loading-states together and look at is one cohesive loading strategy]
+[bbb nesting and power to do it all in a single component]
+
+```jsx
+function PlantedDashboard(props) {
+  const { data: plants } = useSWR("/api/plants", fetcher);  
+
+  const [id, setId] = useState(plants?.[0].id);
+  useEffect(() => setId(plants?.[0].id), [plants])
+
+  const { data: metrics } = useSWR(id && `/api/plants/${id}/metrics`, fetcher);  
+  const { data: trend } = useSWR(id &&`/api/plants/${id}/trend`, fetcher);
+
+  return (
+    <Suspense fallback={<PlantsLoading />}>
+      <Suspension active={!plants}> 
+        <Controller plants={plants} onIdChanged={setId}/>
+
+        <Suspense fallback={<PlantedProfileSkeleton>}>
+          <Suspension active={!metrics}>
+            <Metrics data={metrics} />
+          </Suspension>
+          <Suspension active={!trend}>
+            <Trend data={trend} />
+          </Suspension>
+        </Suspense>
+
+      </Suspension>
+    </Suspense>      
+  );
+}
+```
+[try it out now in a live editor via CodeSandbox ✨](https://codesandbox.io/s/resuspend-data-fetching-example-quote-of-the-day-zlbpjm?file=/src/QuoteOfTheDay.jsx)
+
+
+## SSR compatible
+
 
 ## lifecycle
 
-as implied so far, a `<Suspension/>` component may be _activated_, _deactivated_, then _reactivated_ and _deactivated_ again, and so on until it's unmounted.
+the `<Suspension/>` component may be _activated_, _deactivated_, then _reactivated_ and _deactivated_ again, and so on until it's unmounted.
 
-this flow of state encapsulates the _lifecycle_ of `<Suspension/>` components, and is designed intentionally to provide a level of continuity and reusability you'd expect from a decent React component library (especially one whose name starts with `re-`!)
+
+## live demos
+
+
+## {more integrations | integration guides}
+- [`redux`]()
+- [`next`]()
+- [`react-intersection-observer`]()
+- [`<TransitionGroup>`]()
+
+[recommendations?](link-to-issues-or-discustions)
