@@ -73,7 +73,7 @@ a few of things {to note} about {what's happening in} the component above:
 
 > this kind of "dynamic switch" is all that's needed to drive a loading-state 🏗 - they can be a state controlled by an effect, or even a prop controlled by a parent component. the state could also come from a hook, or even some combination of all of the above!
 
-## {integration example | basic integration}
+## integration
 
 one of more obscure things the `<Suspense>` component was designed for is to readily pause our components, like when they are out of view, so they don't keep running in the background if we don't want them to.
 
@@ -110,7 +110,7 @@ function PatientSnakeGame(props) {
 
 > the `<Suspense>` component {in fallback mode} keeps its children components mounted, but puts them in a {frozen | suspended} state ❄️ so we don't lose our progress in the game or miss any of the action!
 
-## {data fetching example | basic data-fetching}
+## data-fetching
 
 Often, we'll want to wait until data is fetched before showing a component.
 
@@ -204,7 +204,7 @@ function PlantedProfile(props) {
 
 ### nesting
 
-Imagine now we think the abstraction is a bit too much. let's gather all the loading-states and see them as one clear loading strategy. we have the freedom to nest, compose, and handle it all within a single component:
+Imagine now we think the abstraction is a bit too much. let's gather all the loading-states and see them as one {clear | cohesive} loading strategy. we have the freedom to nest, compose, and handle it all within a single component:
 
 ```jsx
 function PlantedDashboard(props) {
