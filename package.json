@@ -40,13 +40,19 @@
     "url": "https://github.com/json2d/resuspend"
   },
   "keywords": [
-    "suspense",
     "react",
+    "suspense",
+    "suspension",
     "component",
     "suspend",
-    "suspension",
     "declarative",
-    "functional"
+    "loading",
+    "progress",
+    "spinner",
+    "bar",
+    "skeleton",
+    "fetching",
+    "pacing"
   ],
   "module": "dist/resuspend.esm.js",
   "size-limit": [
