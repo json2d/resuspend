@@ -80,6 +80,7 @@ one of more obscure things the `<Suspense>` component was designed for is to rea
 {for this example | to best demonstrate this} we can use `react-intersection-observer` to do part of the lift and simply {use the `inView` state that their hook conveniently provides to declare the suspension state | {utilize | leverage} their friendly `useInView` hook to make it basic}:
 
 ```jsx
+import { Suspense } from 'react';
 import { Suspension } from 'resuspend';
 import { SnakeGame } from 'resnake';
 import { useInView } from 'react-intersection-observer';
@@ -154,6 +155,7 @@ export function PlantedDashboard(props) {
 A {smart | great | efficient} way to do data-fetching, in general, is by using a strategy like [SWR for caching](https://swr.vercel.app/):
 
 ```jsx
+import { Suspense, useState, useEffect } from 'react';
 import { Suspension } from 'resuspend';
 import useSWR from "swr";
 
@@ -181,6 +183,10 @@ function PlantedDashboard(props) {
 Now, let's see an example where composition is used to implement eager loading:
 
 ```jsx
+import { Suspense } from 'react';
+import { Suspension } from 'resuspend';
+import useSWR from 'swr';
+
 function PlantedProfile(props) {
   const { id } = props;
 
@@ -207,6 +213,10 @@ function PlantedProfile(props) {
 Imagine now we think the abstraction is a bit too much. let's gather all the loading-states and see them as one {clear | cohesive} loading strategy. we have the freedom to nest, compose, and handle it all within a single component:
 
 ```jsx
+import { Suspense, useState, useEffect } from 'react';
+import { Suspension } from 'resuspend';
+import useSWR from "swr";
+
 function PlantedDashboard(props) {
   const { data: plants } = useSWR("/api/plants", fetcher);
 
