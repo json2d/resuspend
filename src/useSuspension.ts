@@ -7,7 +7,7 @@ const LOW_TAG = '🌊';
 // prefix used to decorate logs useful for debugging the lifecycle of `useSuspension` hooks (which use `SuspensionController` objects internally)
 const HIGH_TAG = '🏄🏽';
 
-interface SuspensionController {
+export interface SuspensionController {
   _suspension: {
     _running: Maybe<Promise<void>>;
     _resolve: Maybe<() => void>;
