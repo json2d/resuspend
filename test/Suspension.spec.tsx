@@ -5,7 +5,7 @@ import React, { Suspense } from 'react';
  * render: lets us render the component (like how React would)
  * screen: Your utility for finding elements the same way the user does
  **/
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 
 import '@testing-library/jest-dom';
 
@@ -37,8 +37,9 @@ describe('given an `App` component that renders a bound `Suspension` component',
         </Suspense>
       );
 
-      render(<App />);
-
+      act(() => {
+        render(<App />);
+      });
       expect(screen.queryByRole('heading')).not.toBeNull();
     });
   });
@@ -50,7 +51,9 @@ describe('given an `App` component that renders a bound `Suspension` component',
         </Suspense>
       );
 
-      render(<App />);
+      act(() => {
+        render(<App />);
+      });
 
       expect(screen.queryByRole('alert')).not.toBeNull();
       expect(screen.queryByRole('heading')).toBeNull();
@@ -65,7 +68,9 @@ describe('given an `App` component that renders a bound `Suspension` component',
         </Suspense>
       );
 
-      render(<App />);
+      act(() => {
+        render(<App />);
+      });
       expect(screen.queryByRole('alert')).not.toBeNull();
       expect(screen.queryByRole('heading')).toBeNull();
       expect(screen.queryByRole('note')).toBeNull();
@@ -83,7 +88,9 @@ describe('given an `App` component that renders a bound `Suspension` component',
         </Suspense>
       );
 
-      render(<App />);
+      act(() => {
+        render(<App />);
+      });
       expect(screen.queryByRole('alert')).not.toBeNull();
       expect(screen.queryByRole('heading')).toBeNull();
 
@@ -99,7 +106,9 @@ describe('given an `App` component that renders a bound `Suspension` component',
         </Suspense>
       );
 
-      render(<App />);
+      act(() => {
+        render(<App />);
+      });
       expect(screen.queryByRole('heading')).not.toBeNull();
       expect(screen.queryByRole('alert')).toBeNull();
       expect(mockDeconstructiveEffect.mock.calls.length).toBe(1);
@@ -121,7 +130,9 @@ describe('given an `App` component that renders a bound `Suspension` component',
         </Suspense>
       );
 
-      render(<App />);
+      act(() => {
+        render(<App />);
+      });
 
       await waitFor(() => screen.getByRole('alert'));
       expect(screen.queryByRole('heading')).toBeNull();
@@ -145,7 +156,9 @@ describe('given an `App` component that renders a bound `Suspension` component',
         </Suspense>
       );
 
-      render(<App />);
+      act(() => {
+        render(<App />);
+      });
 
       await waitFor(() => screen.getByRole('alert'));
       expect(screen.queryByRole('heading')).toBeNull();
@@ -165,7 +178,9 @@ describe('given an `App` component that renders a bound `Suspension` component w
         </Suspense>
       );
 
-      render(<App />);
+      act(() => {
+        render(<App />);
+      });
 
       expect(screen.queryByRole('alert')).not.toBeNull();
       expect(screen.queryByRole('heading')).toBeNull();
@@ -180,7 +195,9 @@ describe('given an `App` component that renders a bound `Suspension` component w
         </Suspense>
       );
 
-      render(<App />);
+      act(() => {
+        render(<App />);
+      });
 
       expect(screen.queryByRole('heading')).not.toBeNull();
       expect(screen.queryByRole('alert')).toBeNull();
